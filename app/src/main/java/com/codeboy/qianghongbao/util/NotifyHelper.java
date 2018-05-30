@@ -3,57 +3,15 @@ package com.codeboy.qianghongbao.util;
 import android.app.KeyguardManager;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Build;
 import android.os.PowerManager;
-import android.os.Vibrator;
 
-import com.codeboy.qianghongbao.Config;
 
-import java.util.Calendar;
-
-/**
- * <p>Created 16/2/5 下午9:48.</p>
- * <p><a href="mailto:codeboy2013@gmail.com">Email:codeboy2013@gmail.com</a></p>
- * <p><a href="http://www.happycodeboy.com">LeonLee Blog</a></p>
- *
- * @author LeonLee
- */
 public class NotifyHelper {
 
-    private static Vibrator sVibrator;
     private static KeyguardManager sKeyguardManager;
     private static PowerManager sPowerManager;
 
-    /** 播放声音*/
-    public static void sound(Context context) {
-        try {
-            MediaPlayer player = MediaPlayer.create(context,
-                    Uri.parse("file:///system/media/audio/ui/camera_click.ogg"));
-            player.start();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /** 振动*/
-    public static void vibrator(Context context) {
-        if(sVibrator == null) {
-            sVibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-        }
-        sVibrator.vibrate(new long[]{100, 10, 100, 1000}, -1);
-    }
-
-    /** 是否为夜间*/
-    public static  boolean isNightTime() {
-        Calendar cal = Calendar.getInstance();
-        int hour = cal.get(Calendar.HOUR_OF_DAY);
-        if(hour >= 23 || hour < 7) {
-            return true;
-        }
-        return false;
-    }
 
     public static KeyguardManager getKeyguardManager(Context context) {
         if(sKeyguardManager == null) {
@@ -85,20 +43,6 @@ public class NotifyHelper {
         }
     }
 
-    /** 播放效果、声音与震动*/
-    public static void playEffect(Context context, Config config) {
-        //夜间模式，不处理
-        if(NotifyHelper.isNightTime() && config.isNotifyNight()) {
-            return;
-        }
-
-        if(config.isNotifySound()) {
-            sound(context);
-        }
-        if(config.isNotifyVibrate()) {
-            vibrator(context);
-        }
-    }
 
     /** 显示通知*/
     public static void showNotify(Context context, String title, PendingIntent pendingIntent) {

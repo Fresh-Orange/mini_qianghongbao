@@ -11,8 +11,8 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.Toast;
 
-import com.codeboy.qianghongbao.job.AccessbilityJob;
-import com.codeboy.qianghongbao.job.WechatAccessbilityJob;
+import com.codeboy.qianghongbao.job.AccessibilityJob;
+import com.codeboy.qianghongbao.job.WechatAccessibilityJob;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,29 +30,29 @@ public class QiangHongBaoService extends AccessibilityService {
     private static final String TAG = "QiangHongBao";
 
     private static final Class[] ACCESSBILITY_JOBS= {
-            WechatAccessbilityJob.class,
+            WechatAccessibilityJob.class,
     };
 
     private static QiangHongBaoService service;
 
-    private List<AccessbilityJob> mAccessbilityJobs;
-    private HashMap<String, AccessbilityJob> mPkgAccessbilityJobMap;
+    private List<AccessibilityJob> mAccessibilityJobs;
+    private HashMap<String, AccessibilityJob> mPkgAccessbilityJobMap;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        mAccessbilityJobs = new ArrayList<>();
+        mAccessibilityJobs = new ArrayList<>();
         mPkgAccessbilityJobMap = new HashMap<>();
 
         //初始化辅助插件工作
         for(Class clazz : ACCESSBILITY_JOBS) {
             try {
                 Object object = clazz.newInstance();
-                if(object instanceof AccessbilityJob) {
-                    AccessbilityJob job = (AccessbilityJob) object;
+                if(object instanceof AccessibilityJob) {
+                    AccessibilityJob job = (AccessibilityJob) object;
                     job.onCreateJob(this);
-                    mAccessbilityJobs.add(job);
+                    mAccessibilityJobs.add(job);
                     mPkgAccessbilityJobMap.put(job.getTargetPackageName(), job);
                 }
             } catch (Exception e) {
@@ -68,15 +68,15 @@ public class QiangHongBaoService extends AccessibilityService {
         if(mPkgAccessbilityJobMap != null) {
             mPkgAccessbilityJobMap.clear();
         }
-        if(mAccessbilityJobs != null && !mAccessbilityJobs.isEmpty()) {
-            for (AccessbilityJob job : mAccessbilityJobs) {
+        if(mAccessibilityJobs != null && !mAccessibilityJobs.isEmpty()) {
+            for (AccessibilityJob job : mAccessibilityJobs) {
                 job.onStopJob();
             }
-            mAccessbilityJobs.clear();
+            mAccessibilityJobs.clear();
         }
 
         service = null;
-        mAccessbilityJobs = null;
+        mAccessibilityJobs = null;
         mPkgAccessbilityJobMap = null;
         //发送广播，已经断开辅助服务
         Intent intent = new Intent(Config.ACTION_QIANGHONGBAO_SERVICE_DISCONNECT);
@@ -105,12 +105,9 @@ public class QiangHongBaoService extends AccessibilityService {
             Log.d(TAG, "事件--->" + event );
         }
         String pkn = String.valueOf(event.getPackageName());
-        if(mAccessbilityJobs != null && !mAccessbilityJobs.isEmpty()) {
-            if(!getConfig().isAgreement()) {
-                return;
-            }
-            for (AccessbilityJob job : mAccessbilityJobs) {
-                if(pkn.equals(job.getTargetPackageName()) && job.isEnable()) {
+        if(mAccessibilityJobs != null && !mAccessibilityJobs.isEmpty()) {
+            for (AccessibilityJob job : mAccessibilityJobs) {
+                if(pkn.equals(job.getTargetPackageName())) {
                     job.onReceiveJob(event);
                 }
             }
@@ -121,22 +118,7 @@ public class QiangHongBaoService extends AccessibilityService {
         return Config.getConfig(this);
     }
 
-    /** 接收通知栏事件*/
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-    public static void handeNotificationPosted(IStatusBarNotification notificationService) {
-        if(notificationService == null) {
-            return;
-        }
-        if(service == null || service.mPkgAccessbilityJobMap == null) {
-            return;
-        }
-        String pack = notificationService.getPackageName();
-        AccessbilityJob job = service.mPkgAccessbilityJobMap.get(pack);
-        if(job == null) {
-            return;
-        }
-        job.onNotificationPosted(notificationService);
-    }
+
 
     /**
      * 判断当前服务是否正在运行
@@ -168,17 +150,7 @@ public class QiangHongBaoService extends AccessibilityService {
         return true;
     }
 
-    /** 快速读取通知栏服务是否启动*/
-    public static boolean isNotificationServiceRunning() {
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            return false;
-        }
-        //部份手机没有NotificationService服务
-        try {
-            return QHBNotificationService.isRunning();
-        } catch (Throwable t) {}
-        return false;
-    }
+
 
 
 }

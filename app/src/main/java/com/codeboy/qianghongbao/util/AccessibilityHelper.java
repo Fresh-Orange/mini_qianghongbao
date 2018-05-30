@@ -8,13 +8,7 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import java.lang.reflect.Field;
 import java.util.List;
 
-/**
- * <p>Created 16/2/4 上午9:49.</p>
- * <p><a href="mailto:730395591@qq.com">Email:730395591@qq.com</a></p>
- * <p><a href="http://www.happycodeboy.com">LeonLee Blog</a></p>
- *
- * @author LeonLee
- */
+
 public final class AccessibilityHelper {
 
     private AccessibilityHelper() {}
@@ -57,26 +51,14 @@ public final class AccessibilityHelper {
         }
         for (int i = 0; i < nodeInfo.getChildCount(); i++) {
             AccessibilityNodeInfo node = nodeInfo.getChild(i);
-            if(className.equals(node.getClassName())) {
+            if(node != null && className.equals(node.getClassName())) {
                 return node;
             }
         }
         return null;
     }
 
-    /** 找父组件*/
-    public static AccessibilityNodeInfo findParentNodeInfosByClassName(AccessibilityNodeInfo nodeInfo, String className) {
-        if(nodeInfo == null) {
-            return null;
-        }
-        if(TextUtils.isEmpty(className)) {
-            return null;
-        }
-        if(className.equals(nodeInfo.getClassName())) {
-            return nodeInfo;
-        }
-        return findParentNodeInfosByClassName(nodeInfo.getParent(), className);
-    }
+
 
     private static final Field sSourceNodeField;
 
@@ -91,24 +73,6 @@ public final class AccessibilityHelper {
         sSourceNodeField = field;
     }
 
-    public static long getSourceNodeId (AccessibilityNodeInfo nodeInfo) {
-        if(sSourceNodeField == null) {
-            return -1;
-        }
-        try {
-            return sSourceNodeField.getLong(nodeInfo);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
-
-    public static String getViewIdResourceName(AccessibilityNodeInfo nodeInfo) {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            return nodeInfo.getViewIdResourceName();
-        }
-        return null;
-    }
 
     /** 返回主界面事件*/
     public static void performHome(AccessibilityService service) {
@@ -118,13 +82,6 @@ public final class AccessibilityHelper {
         service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
     }
 
-    /** 返回事件*/
-    public static void performBack(AccessibilityService service) {
-        if(service == null) {
-            return;
-        }
-        service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK);
-    }
 
     /** 点击事件*/
     public static void performClick(AccessibilityNodeInfo nodeInfo) {

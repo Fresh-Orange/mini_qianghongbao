@@ -31,7 +31,7 @@ public abstract class BaseSettingsActivity extends BaseActivity {
     }
 
     protected boolean isShowBack() {
-        return true;
+        return false;
     }
 
     @Override
